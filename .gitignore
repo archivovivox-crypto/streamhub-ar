@@ -1,0 +1,26 @@
+# Dependencias
+node_modules/
+venv/
+.env
+
+# Archivos temporales
+*.tmp
+*.log
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Salidas de build
+/dist
+/build
+/out
+
+# Archivos sensibles
+*.key
+*.pem
+secrets.json

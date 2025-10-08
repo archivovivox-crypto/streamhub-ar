@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <meta name="description" content="StreamHub AR: Contenido gratuito, legal y optimizado para Smart TV, móviles y PC. Basado en listas públicas de radiosargentina.com.ar e iptv-org." />
+  <meta name="description" content="StreamHub AR: Contenido gratuito, legal y optimizado para Smart TV, móviles y PC. Basado 100% en listas públicas de iptv-org." />
   <title>StreamHub AR – TV Gratuita y Legal</title>
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
   <style>
@@ -101,22 +101,22 @@
   </header>
 
   <div class="categories" id="categories">
-    <!-- ✅ Funcionan en Smart TV -->
-<div class="category-btn" data-url="https://iptv-org.github.io/iptv/countries/ar.m3u">🇦🇷 TV Argentina</div>
-<div class="category-btn" data-url="https://iptv-org.github.io/iptv/countries/br.m3u">🇧🇷 TV Brasil</div>
-<div class="category-btn" data-url="https://iptv-org.github.io/iptv/countries/cl.m3u">🇨🇱 TV Chile</div>
-<div class="category-btn" data-url="https://iptv-org.github.io/iptv/countries/es.m3u">🇪🇸 TV España</div>
-<div class="category-btn" data-url="https://iptv-org.github.io/iptv/countries/us.m3u">🇺🇸 TV EE.UU.</div>
-<div class="category-btn" data-url="https://iptv-org.github.io/iptv/countries/la.m3u">🌎 TV Latina</div>
+    <!-- 🇦🇷 Países (desde iptv-org) -->
+    <div class="category-btn" data-url="https://iptv-org.github.io/iptv/countries/ar.m3u">🇦🇷 TV Argentina</div>
+    <div class="category-btn" data-url="https://iptv-org.github.io/iptv/countries/br.m3u">🇧🇷 TV Brasil</div>
+    <div class="category-btn" data-url="https://iptv-org.github.io/iptv/countries/cl.m3u">🇨🇱 TV Chile</div>
+    <div class="category-btn" data-url="https://iptv-org.github.io/iptv/countries/es.m3u">🇪🇸 TV España</div>
+    <div class="category-btn" data-url="https://iptv-org.github.io/iptv/countries/us.m3u">🇺🇸 TV EE.UU.</div>
+    <div class="category-btn" data-url="https://iptv-org.github.io/iptv/countries/la.m3u">🌎 TV Latina</div>
 
-<!-- ✅ Categorías globales -->
-<div class="category-btn" data-url="https://iptv-org.github.io/iptv/categories/documentary.m3u">🌍 Documentales</div>
-<div class="category-btn" data-url="https://iptv-org.github.io/iptv/categories/news.m3u">📰 Noticias</div>
-<div class="category-btn" data-url="https://iptv-org.github.io/iptv/categories/music.m3u">🎵 Música</div>
-<div class="category-btn" data-url="https://iptv-org.github.io/iptv/categories/weather.m3u">🌦️ Clima</div>
+    <!-- 🌍 Categorías globales -->
+    <div class="category-btn" data-url="https://iptv-org.github.io/iptv/categories/documentary.m3u">🌍 Documentales</div>
+    <div class="category-btn" data-url="https://iptv-org.github.io/iptv/categories/news.m3u">📰 Noticias</div>
+    <div class="category-btn" data-url="https://iptv-org.github.io/iptv/categories/music.m3u">🎵 Música</div>
+    <div class="category-btn" data-url="https://iptv-org.github.io/iptv/categories/weather.m3u">🌦️ Clima</div>
 
-<!-- ✅ Especiales -->
-<div class="category-btn" data-url="https://nasa-i.akamaihd.net/hls/live/253565/nasa-ntv1-public/master.m3u8">🚀 NASA Stream</div>
+    <!-- 🚀 Especiales -->
+    <div class="category-btn" data-url="https://nasa-i.akamaihd.net/hls/live/253565/nasa-ntv1-public/master.m3u8">🚀 NASA Stream</div>
   </div>
 
   <div id="player-container">
@@ -125,8 +125,7 @@
   </div>
 
   <footer>
-    Basado en listas públicas de 
-    <a href="https://radiosargentina.com.ar" target="_blank">radiosargentina.com.ar</a>,
+    Basado 100% en listas públicas de 
     <a href="https://iptv-org.github.io/iptv/" target="_blank">iptv-org</a> •
     Código bajo licencia MIT
   </footer>
@@ -168,34 +167,45 @@
           alert(`❌ Error:\n${err.message}`);
         }
       }
-function playStream(streamUrl) {
-  if (isSmartTV()) {
-    // Abre en nueva pestaña (mejor compatibilidad)
-    window.open(streamUrl, '_blank');
-  } else {
-    // Usa hls.js en la página actual
-    if (Hls.isSupported()) {
-      if (video.hls) video.hls.destroy();
-      const hls = new Hls();
-      video.hls = hls;
-      hls.loadSource(streamUrl);
-      hls.attachMedia(video);
-      hls.on(Hls.Events.MANIFEST_PARSED, () => video.play().catch(() => {}));
-    } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-      video.src = streamUrl;
-      video.play().catch(() => {});
-    } else {
-      alert('Tu dispositivo no soporta transmisiones HLS.');
-      return;
-    }
-    playerContainer.style.display = 'flex';
-  }
-}
 
-function isSmartTV() {
-  const userAgent = navigator.userAgent.toLowerCase();
-  return userAgent.includes('tizen') || userAgent.includes('webos') || userAgent.includes('android tv') || userAgent.includes('google tv');
-});
+      function playStream(streamUrl) {
+        if (Hls.isSupported()) {
+          if (video.hls) video.hls.destroy();
+
+          // ✅ Optimización para ADSL (15 Mbps) hasta fibra (1000 Mbps)
+          const hlsConfig = {
+            abrEwmaDefaultEstimate: 500000,    // Inicia en 0.5 Mbps (seguro para ADSL)
+            abrBandwidthFactor: 0.8,           // Usa el 80% del ancho de banda
+            abrBandwidthUpFactor: 0.7,
+            maxBufferSize: 60,                 // Reduce uso de RAM en Smart TV
+            maxBufferLength: 30,
+            liveSyncDurationCount: 3,
+            liveMaxLatencyDurationCount: 6,
+            enableWorker: true,
+            lowLatencyMode: true
+          };
+
+          const hls = new Hls(hlsConfig);
+          video.hls = hls;
+          hls.loadSource(streamUrl);
+          hls.attachMedia(video);
+          hls.on(Hls.Events.MANIFEST_PARSED, () => {
+            video.play().catch(() => {
+              console.log("Autoplay bloqueado. Haz clic para reproducir.");
+            });
+          });
+        } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+          video.src = streamUrl;
+          video.play().catch(() => {});
+        } else {
+          alert('Tu dispositivo no soporta transmisiones HLS.');
+          return;
+        }
+        playerContainer.style.display = 'flex';
+      }
+
+      if (buttons.length > 0) buttons[0].focus();
+    });
   </script>
 </body>
 </html>

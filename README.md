@@ -7,7 +7,7 @@ Basado exclusivamente en **listas públicas y abiertas** de fuentes confiables.
 ## 🌐 Fuentes utilizadas
 
 - 🇦🇷 **TV Argentina, Brasil, Chile, España, EE.UU., Latina**:  
-  [`radiosargentina.com.ar`](https://radiosargentina.com.ar)
+  [`iptv-org.github.io/iptv`](https://iptv-org.github.io/iptv/)
 - 🌍 **Canales internacionales verificados**:  
   [`iptv-org.github.io/iptv`](https://iptv-org.github.io/iptv/)
 - 🚀 **NASA Stream**: enlace oficial de la NASA

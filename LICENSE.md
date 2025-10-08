@@ -3,7 +3,7 @@ MIT License
 Copyright (c) 2025 archivovivox-crypto
 
 Basado en listas públicas de:
-- radiosargentina.com.ar (https://radiosargentina.com.ar)
+
 - iptv-org (https://github.com/iptv-org/iptv)
 
 Se reconoce y respeta la autoría original de las listas de transmisión.

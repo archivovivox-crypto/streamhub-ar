@@ -131,81 +131,141 @@
   </footer>
 
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const buttons = document.querySelectorAll('.category-btn');
-      const playerContainer = document.getElementById('player-container');
-      const video = document.getElementById('video');
-      const backBtn = document.getElementById('back-btn');
+document.addEventListener('DOMContentLoaded', () => {
+  let currentPlaylist = [];
+  let currentChannelIndex = 0;
+  let autoAdvanceTimer = null;
 
-      buttons.forEach(btn => {
-        btn.setAttribute('tabindex', '0');
-        btn.addEventListener('click', () => loadPlaylist(btn.dataset.url));
-        btn.addEventListener('keydown', e => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            loadPlaylist(btn.dataset.url);
-          }
-        });
-      });
+  const buttons = document.querySelectorAll('.category-btn');
+  const playerContainer = document.getElementById('player-container');
+  const video = document.getElementById('video');
+  const backBtn = document.getElementById('back-btn');
 
-      backBtn.addEventListener('click', () => {
-        playerContainer.style.display = 'none';
-        video.pause();
-        video.src = '';
-        if (video.hls) { video.hls.destroy(); video.hls = null; }
-      });
+  // Crear botón "Siguiente"
+  const nextBtn = document.createElement('button');
+  nextBtn.id = 'next-btn';
+  nextBtn.textContent = 'Siguiente →';
+  nextBtn.style.cssText = `
+    margin-top: 15px;
+    padding: 10px 20px;
+    font-size: 1.1rem;
+    background: #4a148c;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+  `;
+  document.getElementById('player-container').appendChild(nextBtn);
 
-      async function loadPlaylist(url) {
-        try {
-          const res = await fetch(url);
-          if (!res.ok) throw new Error(`HTTP ${res.status}`);
-          const text = await res.text();
-          const lines = text.split('\n').map(l => l.trim()).filter(l => l && l.startsWith('http'));
-          if (lines.length === 0) throw new Error('No se encontraron enlaces de transmisión');
-          playStream(lines[0]);
-        } catch (err) {
-          alert(`❌ Error:\n${err.message}`);
-        }
+  buttons.forEach(btn => {
+    btn.setAttribute('tabindex', '0');
+    btn.addEventListener('click', () => loadFullPlaylist(btn.dataset.url));
+    btn.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        loadFullPlaylist(btn.dataset.url);
       }
-
-      function playStream(streamUrl) {
-        if (Hls.isSupported()) {
-          if (video.hls) video.hls.destroy();
-
-          // ✅ Optimización para ADSL (15 Mbps) hasta fibra (1000 Mbps)
-          const hlsConfig = {
-            abrEwmaDefaultEstimate: 500000,    // Inicia en 0.5 Mbps (seguro para ADSL)
-            abrBandwidthFactor: 0.8,           // Usa el 80% del ancho de banda
-            abrBandwidthUpFactor: 0.7,
-            maxBufferSize: 60,                 // Reduce uso de RAM en Smart TV
-            maxBufferLength: 30,
-            liveSyncDurationCount: 3,
-            liveMaxLatencyDurationCount: 6,
-            enableWorker: true,
-            lowLatencyMode: true
-          };
-
-          const hls = new Hls(hlsConfig);
-          video.hls = hls;
-          hls.loadSource(streamUrl);
-          hls.attachMedia(video);
-          hls.on(Hls.Events.MANIFEST_PARSED, () => {
-            video.play().catch(() => {
-              console.log("Autoplay bloqueado. Haz clic para reproducir.");
-            });
-          });
-        } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-          video.src = streamUrl;
-          video.play().catch(() => {});
-        } else {
-          alert('Tu dispositivo no soporta transmisiones HLS.');
-          return;
-        }
-        playerContainer.style.display = 'flex';
-      }
-
-      if (buttons.length > 0) buttons[0].focus();
     });
-  </script>
+  });
+
+  backBtn.addEventListener('click', () => {
+    playerContainer.style.display = 'none';
+    video.pause();
+    video.src = '';
+    if (video.hls) { video.hls.destroy(); video.hls = null; }
+    clearTimeout(autoAdvanceTimer);
+  });
+
+  nextBtn.addEventListener('click', () => playNextChannel());
+
+  async function loadFullPlaylist(url) {
+    try {
+      const res = await fetch(url);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const text = await res.text();
+      const lines = text.split('\n');
+      const playlist = [];
+      let currentName = 'Canal';
+
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i].trim();
+        if (line.startsWith('#EXTINF:')) {
+          const nameMatch = line.match(/,(.+)$/);
+          currentName = nameMatch ? nameMatch[1].trim() : 'Canal';
+        } else if (line.startsWith('http') && (line.includes('.m3u8') || line.includes('playlist'))) {
+          playlist.push({ name: currentName, url: line });
+        }
+      }
+
+      if (playlist.length === 0) throw new Error('No se encontraron canales válidos');
+      
+      currentPlaylist = playlist;
+      currentChannelIndex = 0;
+      playCurrentChannel();
+    } catch (err) {
+      alert(`❌ Error:\n${err.message}`);
+    }
+  }
+
+  function playCurrentChannel() {
+    if (currentChannelIndex >= currentPlaylist.length) {
+      alert('No hay más canales en esta lista.');
+      playerContainer.style.display = 'none';
+      return;
+    }
+
+    const channel = currentPlaylist[currentChannelIndex];
+    console.log(`Reproduciendo: ${channel.name} (${currentChannelIndex + 1}/${currentPlaylist.length})`);
+
+    // Actualizar título del video (opcional)
+    document.title = `📺 ${channel.name} - StreamHub AR`;
+
+    if (video.hls) video.hls.destroy();
+    video.src = '';
+
+    const hlsConfig = {
+      abrEwmaDefaultEstimate: 500000,
+      abrBandwidthFactor: 0.8,
+      maxBufferSize: 60,
+      maxBufferLength: 30,
+      liveSyncDurationCount: 3,
+      liveMaxLatencyDurationCount: 6,
+      enableWorker: true,
+      lowLatencyMode: true
+    };
+
+    const hls = new Hls(hlsConfig);
+    video.hls = hls;
+    hls.loadSource(channel.url);
+    hls.attachMedia(video);
+
+    hls.on(Hls.Events.MANIFEST_PARSED, () => {
+      clearTimeout(autoAdvanceTimer);
+      video.play().catch(() => {});
+    });
+
+    // ⏱️ Temporizador de espera: 12 segundos
+    clearTimeout(autoAdvanceTimer);
+    autoAdvanceTimer = setTimeout(() => {
+      if (video.readyState < 2) { // Si no hay metadatos, asumimos que no carga
+        console.log('Canal no responde. Pasando al siguiente...');
+        playNextChannel();
+      }
+    }, 12000);
+
+    playerContainer.style.display = 'flex';
+  }
+
+  function playNextChannel() {
+    currentChannelIndex++;
+    if (currentChannelIndex < currentPlaylist.length) {
+      playCurrentChannel();
+    } else {
+      alert('Fin de la lista.');
+      playerContainer.style.display = 'none';
+    }
+  }
+});
+</script>
 </body>
 </html>

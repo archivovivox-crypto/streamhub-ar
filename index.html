@@ -101,21 +101,22 @@
   </header>
 
   <div class="categories" id="categories">
-    <!-- 🇦🇷 Radios Argentina -->
-    <div class="category-btn" data-url="https://radiosargentina.com.ar/TVAR.m3u">🇦🇷 TV Argentina</div>
-    <div class="category-btn" data-url="https://radiosargentina.com.ar/TVBR.m3u">🇧🇷 TV Brasil</div>
-    <div class="category-btn" data-url="https://radiosargentina.com.ar/TVCH.m3u">🇨🇱 TV Chile</div>
-    <div class="category-btn" data-url="https://radiosargentina.com.ar/TVES.m3u">🇪🇸 TV España</div>
-    <div class="category-btn" data-url="https://radiosargentina.com.ar/TVUS.m3u">🇺🇸 TV EE.UU.</div>
-    <div class="category-btn" data-url="https://radiosargentina.com.ar/TVLA.m3u">🌎 TV Latina</div>
+    <!-- ✅ Funcionan en Smart TV -->
+<div class="category-btn" data-url="https://iptv-org.github.io/iptv/countries/ar.m3u">🇦🇷 TV Argentina</div>
+<div class="category-btn" data-url="https://iptv-org.github.io/iptv/countries/br.m3u">🇧🇷 TV Brasil</div>
+<div class="category-btn" data-url="https://iptv-org.github.io/iptv/countries/cl.m3u">🇨🇱 TV Chile</div>
+<div class="category-btn" data-url="https://iptv-org.github.io/iptv/countries/es.m3u">🇪🇸 TV España</div>
+<div class="category-btn" data-url="https://iptv-org.github.io/iptv/countries/us.m3u">🇺🇸 TV EE.UU.</div>
+<div class="category-btn" data-url="https://iptv-org.github.io/iptv/countries/la.m3u">🌎 TV Latina</div>
 
-    <!-- 🌍 iptv-org -->
-    <div class="category-btn" data-url="https://iptv-org.github.io/iptv/categories/documentary.m3u">🌍 Documentales</div>
-    <div class="category-btn" data-url="https://iptv-org.github.io/iptv/categories/music.m3u">🎵 Música</div>
-    <div class="category-btn" data-url="https://iptv-org.github.io/iptv/categories/weather.m3u">🌦️ Clima</div>
+<!-- ✅ Categorías globales -->
+<div class="category-btn" data-url="https://iptv-org.github.io/iptv/categories/documentary.m3u">🌍 Documentales</div>
+<div class="category-btn" data-url="https://iptv-org.github.io/iptv/categories/news.m3u">📰 Noticias</div>
+<div class="category-btn" data-url="https://iptv-org.github.io/iptv/categories/music.m3u">🎵 Música</div>
+<div class="category-btn" data-url="https://iptv-org.github.io/iptv/categories/weather.m3u">🌦️ Clima</div>
 
-    <!-- 🚀 Especiales -->
-    <div class="category-btn" data-url="https://nasa-i.akamaihd.net/hls/live/253565/nasa-ntv1-public/master.m3u8">🚀 NASA Stream</div>
+<!-- ✅ Especiales -->
+<div class="category-btn" data-url="https://nasa-i.akamaihd.net/hls/live/253565/nasa-ntv1-public/master.m3u8">🚀 NASA Stream</div>
   </div>
 
   <div id="player-container">
@@ -167,27 +168,34 @@
           alert(`❌ Error:\n${err.message}`);
         }
       }
+function playStream(streamUrl) {
+  if (isSmartTV()) {
+    // Abre en nueva pestaña (mejor compatibilidad)
+    window.open(streamUrl, '_blank');
+  } else {
+    // Usa hls.js en la página actual
+    if (Hls.isSupported()) {
+      if (video.hls) video.hls.destroy();
+      const hls = new Hls();
+      video.hls = hls;
+      hls.loadSource(streamUrl);
+      hls.attachMedia(video);
+      hls.on(Hls.Events.MANIFEST_PARSED, () => video.play().catch(() => {}));
+    } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+      video.src = streamUrl;
+      video.play().catch(() => {});
+    } else {
+      alert('Tu dispositivo no soporta transmisiones HLS.');
+      return;
+    }
+    playerContainer.style.display = 'flex';
+  }
+}
 
-      function playStream(streamUrl) {
-        if (Hls.isSupported()) {
-          if (video.hls) video.hls.destroy();
-          const hls = new Hls();
-          video.hls = hls;
-          hls.loadSource(streamUrl);
-          hls.attachMedia(video);
-          hls.on(Hls.Events.MANIFEST_PARSED, () => video.play().catch(() => {}));
-        } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-          video.src = streamUrl;
-          video.play().catch(() => {});
-        } else {
-          alert('Tu dispositivo no soporta transmisiones HLS.');
-          return;
-        }
-        playerContainer.style.display = 'flex';
-      }
-
-      if (buttons.length > 0) buttons[0].focus();
-    });
+function isSmartTV() {
+  const userAgent = navigator.userAgent.toLowerCase();
+  return userAgent.includes('tizen') || userAgent.includes('webos') || userAgent.includes('android tv') || userAgent.includes('google tv');
+});
   </script>
 </body>
 </html>

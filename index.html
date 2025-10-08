@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <meta name="description" content="StreamHub AR: Contenido gratuito, legal y optimizado para Smart TV, móviles y PC. Basado en listas públicas de radiosargentina.com.ar, iptv-org y Deepin en Español (cuando esté disponible)." />
+  <meta name="description" content="StreamHub AR: Contenido gratuito, legal y optimizado para Smart TV, móviles y PC. Basado en listas públicas de radiosargentina.com.ar e iptv-org." />
   <title>StreamHub AR – TV Gratuita y Legal</title>
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
   <style>
@@ -53,10 +53,8 @@
       transform: scale(1.02);
       box-shadow: 0 0 0 3px #4fc3f760;
     }
-    .category-btn.disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-      background: #151520;
+    .category-btn:focus-visible {
+      box-shadow: 0 0 0 3px #4fc3f7;
     }
     #player-container {
       position: fixed;
@@ -118,9 +116,6 @@
 
     <!-- 🚀 Especiales -->
     <div class="category-btn" data-url="https://nasa-i.akamaihd.net/hls/live/253565/nasa-ntv1-public/master.m3u8">🚀 NASA Stream</div>
-
-    <!-- 💙 Deepin en Español (solo si está activo) -->
-    <div class="category-btn disabled" title="Servicio temporalmente no disponible" id="deepin-btn">💙 Deepin IPTV</div>
   </div>
 
   <div id="player-container">
@@ -131,26 +126,13 @@
   <footer>
     Basado en listas públicas de 
     <a href="https://radiosargentina.com.ar" target="_blank">radiosargentina.com.ar</a>,
-    <a href="https://iptv-org.github.io/iptv/" target="_blank">iptv-org</a> y
-    <a href="https://deepinenespañol.org" target="_blank">Deepin en Español</a> •
+    <a href="https://iptv-org.github.io/iptv/" target="_blank">iptv-org</a> •
     Código bajo licencia MIT
   </footer>
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      // Verificar si Deepin está disponible
-      fetch('http://mantenimiento.xn--deepinenespaol-1nb.org/IPTV-Deepines/IPTV-Deepines.m3u', { method: 'HEAD' })
-        .then(() => {
-          const btn = document.getElementById('deepin-btn');
-          btn.classList.remove('disabled');
-          btn.title = '';
-          btn.dataset.url = 'http://mantenimiento.xn--deepinenespaol-1nb.org/IPTV-Deepines/IPTV-Deepines.m3u';
-        })
-        .catch(() => {
-          // Dejar deshabilitado si falla
-        });
-
-      const buttons = document.querySelectorAll('.category-btn:not(.disabled)');
+      const buttons = document.querySelectorAll('.category-btn');
       const playerContainer = document.getElementById('player-container');
       const video = document.getElementById('video');
       const backBtn = document.getElementById('back-btn');
